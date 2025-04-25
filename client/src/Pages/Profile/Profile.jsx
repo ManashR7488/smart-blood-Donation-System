@@ -251,7 +251,7 @@ const Profile = () => {
             />
           </div>
 
-          {/* <div
+          <div
             className="border-2 border-dashed border-gray-400 rounded-xl p-4 text-center cursor-pointer"
             onClick={() => navigate("/verify-user")}
             disabled={true}
@@ -276,9 +276,9 @@ const Profile = () => {
               id="aadhaarInput"
               hidden
               accept=".pdf,.jpg,.png"
-              onChange={handleFileChange}
+              
             />
-          </div> */}
+          </div>
 
           
         </div>
