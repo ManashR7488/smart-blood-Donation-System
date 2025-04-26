@@ -8,14 +8,18 @@ import MedGenAIChat from "./components/AiChatBot/MedGenAI";
 import Profile from "./Pages/Profile/Profile";
 import VerifyUser from "./Pages/VerifyUser/VerifyUser";
 import { useAuthStore } from './store/useAuthStore';
+import Signup from './Pages/Auth/Signup';
+import { Toaster } from "react-hot-toast";
+import Test from "./components/test";
 
 const App = () => {
 
   const {checkAuth } = useAuthStore();
 
 useEffect(() => {
-    console.log(import.meta.env.MODE)
-    checkAuth();
+    // console.log(import.meta.env.MODE)
+    // checkAuth();
+
 }, [])
 
 
@@ -27,7 +31,7 @@ useEffect(() => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Request />} />
-          <Route path="/signup" element={<Request />} />
+          <Route path="/register" element={<Signup />} />
           <Route
             path="/profile"
             element={<Profile />}
@@ -39,8 +43,10 @@ useEffect(() => {
             path="/contact"
             element={<h1 className="text-3xl font-bold underline">Contact</h1>}
           />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </div>
+      <Toaster />
     </div>
   );
 };

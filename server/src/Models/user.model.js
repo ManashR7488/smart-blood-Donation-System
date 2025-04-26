@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -30,7 +30,6 @@ const userSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    required: true,
     min: 18,
     max: 65
   },
@@ -41,7 +40,6 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
     trim: true
   },
   // Push notification tokens for real-time alerts (Socket.IO/Web Push)
@@ -103,16 +101,8 @@ const userSchema = new mongoose.Schema({
   ratings: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  }]
+},{timestamps: true});
 
 // Pre-save hook to update `updatedAt`
 userSchema.pre('save', function(next) {
@@ -123,4 +113,6 @@ userSchema.pre('save', function(next) {
 // Index for quick blood type + location searches
 userSchema.index({ bloodType: 1, 'location': '2dsphere' });
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;
