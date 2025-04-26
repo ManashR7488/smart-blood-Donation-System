@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-
 const app = express();
 const PORT = process.env.PORT || 5000;
+import dotenv from 'dotenv';
+dotenv.config();
 
-// import {user} from "./src/constants/tempConst.js" 
 
 app.use(cors({
     origin: process.env.NODE_ENV === "production" ? "https://smart-blood-donation-system.vercel.app" : "http://localhost:5173",
@@ -23,6 +23,7 @@ app.post("/api/getuser",(req,res)=>{
 
 
 app.listen(PORT, (req, res) =>{
+    console.log(process.env.NODE_ENV)
     console.log(`app listening on port ${PORT}`);
     console.log(`http://localhost:${PORT}`);
 })
