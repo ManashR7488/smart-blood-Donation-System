@@ -7,7 +7,7 @@ dotenv.config();
 
 
 app.use(cors({
-    origin: process.env.NODE_ENV === "production" ? "https://smart-blood-donation-system.vercel.app" : "http://localhost:5173",
+    origin: process.env.NODE_ENV === "production" ? "https://smart-blood-donation-system.vercel.app/" : "http://localhost:5173",
     credentials: true,
   }));
   
