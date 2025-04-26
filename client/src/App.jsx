@@ -16,7 +16,7 @@ const App = () => {
 useEffect(() => {
   
     checkAuth();
-}, [third])
+}, [])
 
 
   return (
