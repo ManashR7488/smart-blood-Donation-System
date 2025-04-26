@@ -14,7 +14,7 @@ const App = () => {
   const {checkAuth } = useAuthStore();
 
 useEffect(() => {
-  
+    console.log(import.meta.env.MODE)
     checkAuth();
 }, [])
 
