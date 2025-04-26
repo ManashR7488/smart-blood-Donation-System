@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { HiHome, HiCalendar, HiLocationMarker, HiUser, HiPlusCircle } from 'react-icons/hi';
 import { IoSettingsOutline } from "react-icons/io5";
+import logo from "/images/logo.png"
 
 
 const links = [
@@ -17,7 +18,7 @@ const Nav = () => (
   <nav className="sticky top-0 left-0 h-screen flex flex-col justify-between items-center w-64 bg-white border-r border-gray-200">
     <div className="p-6">
       <NavLink to="/" end className="flex items-center space-x-2 mb-8">
-        <HiPlusCircle className="h-8 w-8 text-red-600" />
+        <img src={logo} alt="" className='h-10 object-cover' />
         <span className="text-xl font-bold text-gray-900">Blood Buddy</span>
       </NavLink>
 

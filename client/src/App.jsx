@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home/Home";
-import { HiMenu } from "react-icons/hi";
 import Nav from "./components/Nav/Nav";
 import Request from "./Pages/Request/Request";
 import Donate from "./components/Donate/Donate";
 import MedGenAIChat from "./components/AiChatBot/MedGenAI";
 import Profile from "./Pages/Profile/Profile";
 import VerifyUser from "./Pages/VerifyUser/VerifyUser";
+import { useAuthStore } from './store/useAuthStore';
 
 const App = () => {
-  const [open, setOpen] = useState(true);
-  const toggle = () => setOpen((prev) => !prev);
+
+  const {checkAuth } = useAuthStore();
+
+useEffect(() => {
+  
+    checkAuth();
+}, [third])
+
+
   return (
     <div className=" relative flex justify-start items-start" data-theme="light">
       <MedGenAIChat />

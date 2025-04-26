@@ -3,9 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -35,8 +33,6 @@ const Profile = () => {
     }
   }, []);
 
-  
-
   const sendOTP = () => {
     const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     setCurrentOTP(generatedOTP);
@@ -47,8 +43,6 @@ const Profile = () => {
       "otp"
     );
   };
-
-  
 
   const showStatus = (message, type, target) => {
     setStatus({ message, type, target });
@@ -117,21 +111,7 @@ const Profile = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Personal Information</h2>
-          {/* {['fullName', 'dob', 'contact', 'address', 'city', 'weight'].map((field, idx) => (
-            <div className="mb-4" key={idx}>
-              <label className="block font-medium mb-1 capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-              <input
-                id={field}
-                type={field === 'dob' ? 'date' : field === 'weight' ? 'number' : 'text'}
-                value={formData[field]}
-                onChange={handleChange}
-                readOnly={field === 'contact'}
-                className="w-full p-3 border border-gray-200 rounded-lg"
-              />
-            </div>
-          ))} */}
-        
+          <h2 className="text-xl font-bold mb-4">Personal Information</h2>a
           <div className="mb-4">
             <label className="block font-medium mb-1 capitalize">
               FullName
@@ -145,9 +125,7 @@ const Profile = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              dob
-            </label>
+            <label className="block font-medium mb-1 capitalize">dob</label>
             <input
               id={"dob"}
               type="date"
@@ -157,9 +135,7 @@ const Profile = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              contact
-            </label>
+            <label className="block font-medium mb-1 capitalize">contact</label>
             <input
               id={"contact"}
               type="number"
@@ -169,9 +145,7 @@ const Profile = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              address
-            </label>
+            <label className="block font-medium mb-1 capitalize">address</label>
             <input
               id={"address"}
               type="text"
@@ -181,9 +155,7 @@ const Profile = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              city
-            </label>
+            <label className="block font-medium mb-1 capitalize">city</label>
             <input
               id={"city"}
               type="text"
@@ -193,9 +165,7 @@ const Profile = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              weight
-            </label>
+            <label className="block font-medium mb-1 capitalize">weight</label>
             <input
               id={"weight"}
               type="text"
@@ -255,7 +225,6 @@ const Profile = () => {
             className="border-2 border-dashed border-gray-400 rounded-xl p-4 text-center cursor-pointer"
             onClick={() => navigate("/verify-user")}
             disabled={true}
-
           >
             <p>Upload Aadhaar Card (PDF/Image)</p>
             <small>Max file size: 2MB</small>
@@ -276,11 +245,8 @@ const Profile = () => {
               id="aadhaarInput"
               hidden
               accept=".pdf,.jpg,.png"
-              
             />
           </div>
-
-          
         </div>
       </div>
 
