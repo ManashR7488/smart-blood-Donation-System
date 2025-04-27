@@ -9,7 +9,7 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import { FaDroplet } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 
 const Login = () => {
@@ -34,13 +34,14 @@ const Login = () => {
   const handlePasswordToggle = () => {
     setPasswordVisible(!passwordVisible);
   };
-
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (email && password) {
       setButtonSuccess(isLoggingIn);
-      login({ email, password });
+      await login({ email, password });
       setButtonSuccess(isLoggingIn);
+      navigate("/") 
     }
   };
 

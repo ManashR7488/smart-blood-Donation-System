@@ -19,6 +19,7 @@
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "material-icons": "^1.13.14",
+    "moment": "^2.30.1",
     "motion": "^12.9.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

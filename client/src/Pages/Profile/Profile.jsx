@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 // import { FaCalendarPlus } from "react-icons/fa";
 import { SlBadge } from "react-icons/sl";
 import { useAuthStore } from "../../store/useAuthStore";
+import moment from "moment";
 
 const Profile = () => {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
@@ -309,7 +310,7 @@ const Profile = () => {
                   </label>
                   <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2">
                     <FaCalendar className="text-gray-500" />{" "}
-                    {authUser.createdAt}
+                    {moment(authUser.createdAt).format('MMMM Do YYYY, h:mm:ss a')}
                   </div>
                 </div>
 
@@ -319,7 +320,7 @@ const Profile = () => {
                   </label>
                   <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2">
                     <FaCalendar className="text-gray-500" />{" "}
-                    {authUser.updatedAt}
+                    {moment(authUser.updatedAt).format('MMMM Do YYYY, h:mm:ss a')}
                   </div>
                 </div>
               </div>

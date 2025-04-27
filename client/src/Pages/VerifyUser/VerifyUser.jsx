@@ -60,10 +60,10 @@ const VerifyUser = () => {
   const startCamera = () => {
     setCameraStarted(true);
     // In a real app, you would access the webcam here
-    // navigator.mediaDevices.getUserMedia({ video: true })
-    //   .then(stream => {
-    //     videoRef.current.srcObject = stream;
-    //   });
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        videoRef.current.srcObject = stream;
+      });
   };
 
   // Capture face
