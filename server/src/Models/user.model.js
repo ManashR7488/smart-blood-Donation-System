@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'hospital', 'admin'],
     default: ['user']
   }],
+  isAdmin:{
+    type: Boolean,
+    default: false
+  },
   bloodType: {
     type: String,
     enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
