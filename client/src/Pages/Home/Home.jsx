@@ -77,7 +77,7 @@ const Home = () => {
               className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-red-700 transition-colors animate-pulse duration-75"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/donate")}
+              onClick={() => navigate("/scheduled")}
             >
               Become a Donor
             </motion.button>

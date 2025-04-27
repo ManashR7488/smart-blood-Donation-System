@@ -2,19 +2,31 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { motion } from "framer-motion";
+import { LuUserRound } from "react-icons/lu";
+import { IoMailOutline } from "react-icons/io5";
+import { RiLockPasswordLine } from "react-icons/ri";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useAuthStore } from "../../store/useAuthStore";
+import { CgSpinner } from "react-icons/cg";
 
 const Signup = () => {
   const canvasRef = useRef(null);
+
+  const { isSigningUp, signup } = useAuthStore();
+
   const containerRef = useRef(null);
+  const [isView1, setIsView1] = useState(false);
+  const [isView2, setIsView2] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    fullname: "",
     email: "",
-    phone: "",
+    password: "",
+    conPassword: "",
+    latitude: null,
+    longitude: null,
+    gender: "",
     bloodType: "",
-    donationDate: "",
-    location: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   // Initialize 3D Earth on desktop
@@ -96,34 +108,6 @@ const Signup = () => {
     };
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1500));
-    setSuccess(true);
-
-    // Reset after success
-    setTimeout(() => {
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        bloodType: "",
-        donationDate: "",
-        location: "",
-      });
-      setSuccess(false);
-      setIsSubmitting(false);
-      alert(`Thank you, ${formData.name}! We'll contact you soon.`);
-    }, 1500);
-  };
   const [bubbles, setBubbles] = useState([]);
   useEffect(() => {
     const arr = Array.from({ length: 10 }).map((_, i) => ({
@@ -138,6 +122,56 @@ const Signup = () => {
     }));
     setBubbles(arr);
   }, []);
+
+  const [validClass, setValidClass] = useState("");
+  const passLeble = useRef(null);
+
+  useEffect(() => {
+    if (
+      formData.password === formData.conPassword &&
+      formData.password.length > 0
+    ) {
+      setValidClass("border-green-500");
+    } else if (
+      formData.conPassword.length > 1 &&
+      formData.password !== formData.conPassword
+    ) {
+      setValidClass("border-red-500");
+    } else {
+      setValidClass("");
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData((prev) => ({
+            ...prev,
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+          }));
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
+  }, []);
+
+  const handdleSubmit = async (e) => {
+    console.log(formData);
+    e.preventDefault();
+    await signup({
+      fullname: formData.fullname,
+      email: formData.email,
+      password: formData.password,
+      longitude: formData.longitude,
+      latitude: formData.latitude,
+      gender: formData.gender,
+      bloodType: formData.bloodType,
+    });
+  };
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen px-5">
@@ -155,7 +189,6 @@ const Signup = () => {
         </div>
 
         {/* Visual Section (desktop only) */}
-        
 
         {/* Form Section */}
         <div className="p-10 relative z-10">
@@ -169,32 +202,28 @@ const Signup = () => {
             <h1 className="text-2xl font-bold">Blood Donation Sign Up</h1>
           </motion.div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <form onSubmit={handdleSubmit} className="flex flex-col gap-6">
             {/* Full Name */}
-            
-            
+
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-              <div className="relative group">
-                <i className="lucide lucide-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg transition-transform group-hover:scale-110" />
+              <label className="input validator w-full">
+                <LuUserRound className="opacity-50" />
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="Full Name"
                   required
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm transition-transform group-hover:-translate-y-0.5"
+                  className="w-full"
+                  value={formData.fullname}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fullname: e.target.value })
+                  }
                 />
-              </div>
               </label>
             </motion.div>
-
-
 
             {/* Email */}
             <motion.div
@@ -202,44 +231,97 @@ const Signup = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Email
-              </label>
-              <div className="relative group">
-                <i className="lucide lucide-mail absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg transition-transform group-hover:scale-110" />
+              <label className="input validator w-full">
+                <IoMailOutline className="opacity-50" />
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com"
+                  placeholder="Type Email"
                   required
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm transition-transform group-hover:-translate-y-0.5"
+                  className="w-full"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
+              </label>
+              <div className="validator-hint hidden">
+                Enter valid email address
               </div>
             </motion.div>
 
-            {/* Phone Number */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className=""
             >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Phone Number
-              </label>
-              <div className="relative group">
-                <i className="lucide lucide-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg transition-transform group-hover:scale-110" />
+              <label className="input validator pr-0  w-full" ref={passLeble}>
+                <RiLockPasswordLine className="opacity-50" />
                 <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="(123) 456-7890"
+                  type={isView1 ? "test" : "password"}
                   required
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm transition-transform group-hover:-translate-y-0.5"
+                  placeholder="Password"
+                  minLength="6"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
-              </div>
+                <button
+                  className="btn h-full w-fit px-2 bg-transparent border-none cursor-pointer"
+                  onClick={() => setIsView1(!isView1)}
+                >
+                  {" "}
+                  {isView1 ? (
+                    <FiEye className="size-4 opacity-60" />
+                  ) : (
+                    <FiEyeOff className="size-4 opacity-60" />
+                  )}{" "}
+                </button>
+              </label>
+              <p className="validator-hint hidden">
+                Must be more than 8 characters, including
+                <br />
+                At least one number
+                <br />
+                At least one lowercase letter
+                <br />
+                At least one uppercase letter
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className=""
+            >
+              <label className={`input pr-0  w-full ${validClass} `}>
+                <RiLockPasswordLine className="opacity-50" />
+                <input
+                  type={isView2 ? "test" : "password"}
+                  required
+                  placeholder="Password"
+                  className=""
+                  value={formData.conPassword}
+                  onChange={(e) => {
+                    setFormData({ ...formData, conPassword: e.target.value });
+                  }}
+                />
+                <button
+                  className="btn h-full w-fit px-2 bg-transparent border-none "
+                  onClick={() => setIsView2(!isView2)}
+                >
+                  {" "}
+                  {isView2 ? (
+                    <FiEye className="size-4 opacity-60" />
+                  ) : (
+                    <FiEyeOff className="size-4 opacity-60" />
+                  )}{" "}
+                </button>
+              </label>
             </motion.div>
 
             {/* Blood Type */}
@@ -248,17 +330,16 @@ const Signup = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
             >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Blood Type
-              </label>
               <select
                 name="bloodType"
-                value={formData.bloodType}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, bloodType: e.target.value })
+                }
                 required
-                className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm"
+                defaultValue="Select your blood type"
+                className="select w-full pl-3 pr-3  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm"
               >
-                <option value="">Select your blood type</option>
+                <option disabled>Select your blood type</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
@@ -270,75 +351,48 @@ const Signup = () => {
               </select>
             </motion.div>
 
-            {/* Donation Date */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
             >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Preferred Donation Date
-              </label>
-              <div className="relative group">
-                <i className="lucide lucide-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg transition-transform group-hover:scale-110" />
-                <input
-                  type="date"
-                  name="donationDate"
-                  value={formData.donationDate}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm transition-transform group-hover:-translate-y-0.5"
-                />
-              </div>
-            </motion.div>
-
-            {/* Location */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            >
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Nearest Donation Center
-              </label>
               <select
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
+                name="gender"
+                onChange={(e) =>
+                  setFormData({ ...formData, gender: e.target.value })
+                }
                 required
-                className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm"
+                defaultValue="Sex"
+                className="select w-full pl-3 pr-3  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-500 shadow-sm"
               >
-                <option value="">Select a location</option>
-                <option value="downtown">Downtown Blood Center</option>
-                <option value="westside">Westside Donation Clinic</option>
-                <option value="eastside">Eastside Community Hospital</option>
-                <option value="north">North Medical Center</option>
-                <option value="south">South Blood Bank</option>
+                <option disabled>Sex</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Others</option>
               </select>
             </motion.div>
 
             {/* Submit Button */}
             <motion.button
               type="submit"
-              className={`mt-4 py-3 rounded-md text-white font-medium relative overflow-hidden focus:outline-none shadow-lg $ {
-                success ? 'bg-green-500' : 'bg-red-500 pulse'
+              className={`btn mt-4 py-3 rounded-md  font-medium relative overflow-hidden focus:outline-none shadow-lg ${
+                success ? "bg-green-500" : "bg-red-500 pulse"
               }`}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.6 }}
-              disabled={isSubmitting}
+              disabled={isSigningUp}
             >
-              {isSubmitting
-                ? "Processing..."
-                : success
-                ? "✓ Success!"
-                : "Sign Up to Donate"}
+              {isSigningUp ? (
+                <CgSpinner className="animate-spin text-2xl duration-150" />
+              ) : (
+                "Create Account"
+              )}
             </motion.button>
           </form>
         </div>
 
-
-         <div
+        <div
           ref={containerRef}
           className="hidden lg:flex relative min-h-[600px] bg-gradient-to-b from-red-100 to-red-400 items-center justify-center"
         >

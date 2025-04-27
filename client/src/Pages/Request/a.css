@@ -1,0 +1,42 @@
+/* a.css - Modified pulse animation */
+.pulse-marker {
+    background: #ff4757;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    position: relative;
+    opacity: 0.7;
+  }
+  
+  .pulse-marker::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
+    animation: pulse 2s infinite;
+  }
+  
+  .pulse-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+  }
+  
+  @keyframes pulse {
+    0% { 
+      box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
+    }
+    100% { 
+      box-shadow: 0 0 0 20px rgba(255, 71, 87, 0);
+    }
+  }

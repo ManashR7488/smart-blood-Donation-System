@@ -1,263 +1,390 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import {
+  FaUser,
+  FaEnvelope,
+  FaVenusMars,
+  FaCalendarDay,
+  FaTint,
+  FaHandHoldingHeart,
+  FaHeart,
+  FaMapMarkerAlt,
+  FaFileMedical,
+  FaBell,
+  FaStar,
+  FaUserTag,
+  FaClock,
+  FaCalendarPlus,
+  FaCalendarCheck,
+  FaShieldAlt,
+  FaChevronDown,
+  FaIdCard,
+  FaPhone,
+  FaHome,
+  FaSignature,
+  FaVenus,
+  FaMars,
+  FaGenderless,
+  FaCalendar,
+  FaMarsDouble,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+// import { FaCalendarPlus } from "react-icons/fa";
+import { SlBadge } from "react-icons/sl";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const Profile = () => {
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [rating, setRating] = useState(4);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [gender, setGender] = useState("male");
+  const [bloodType, setBloodType] = useState("A+");
+  const [dob, setDob] = useState("1990-05-15");
+
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    dob: "",
-    contact: "",
-    address: "",
-    city: "",
-    state: "Odisha",
-    bloodType: "O+",
-    lastDonation: "",
-    weight: "",
-  });
+  const { authUser } = useAuthStore();
 
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [verified, setVerified] = useState(false);
-  const [status, setStatus] = useState({ message: "", type: "", target: "" });
-  const [loadingAadhaar, setLoadingAadhaar] = useState(false);
-  const inputRefs = useRef([]);
+  const verificationItems = [
+    { icon: <FaIdCard />, text: "ID Verification", status: "verified" },
+    { icon: <FaPhone />, text: "Phone Verification", status: "verified" },
+    { icon: <FaEnvelope />, text: "Email Verification", status: "verified" },
+    {
+      icon: <FaFileMedical />,
+      text: "Medical Verification",
+      status: "pending",
+    },
+    { icon: <FaHome />, text: "Address Verification", status: "unverified" },
+  ];
 
-  // Load saved data
-  useEffect(() => {
-    const saved = localStorage.getItem("donorData");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setFormData(parsed);
-    }
-  }, []);
-
-  const sendOTP = () => {
-    const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    setCurrentOTP(generatedOTP);
-    setAttempts(0);
-    showStatus(
-      `OTP sent to 9876543210 (Simulated: ${generatedOTP})`,
-      "success",
-      "otp"
-    );
-  };
-
-  const showStatus = (message, type, target) => {
-    setStatus({ message, type, target });
-  };
-
-  const handleOtpChange = (value, index) => {
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < 5 && inputRefs.current[index + 1]) {
-      inputRefs.current[index + 1].focus();
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "verified":
+        return "text-green-500";
+      case "pending":
+        return "text-yellow-500";
+      case "unverified":
+        return "text-gray-500";
+      default:
+        return "text-gray-500";
     }
   };
 
-  const handleSubmit = () => {
-    localStorage.setItem("donorData", JSON.stringify(formData));
-    showStatus("Registration Successful! Redirecting...", "success", "otp");
-    setTimeout(() => {
-      window.location.href = "/confirmation";
-    }, 2000);
+  const getStatusText = (status) => {
+    switch (status) {
+      case "verified":
+        return "Verified";
+      case "pending":
+        return "Pending";
+      case "unverified":
+        return "Not Verified";
+      default:
+        return "Unknown";
+    }
   };
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
   return (
-    <motion.div
-      className="max-w-6xl mx-auto p-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <div className="text-center mb-6">
-        <div
-          className="w-48 h-48 rounded-full bg-gray-100 mx-auto border-2 border-dashed border-neutral-400 overflow-hidden cursor-pointer"
-          onClick={() => document.getElementById("profileInput").click()}
-        >
-          {profilePhoto ? (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-100">
+          {/* Profile Header */}
+          <div className="bg-red-300 py-8 px-6 text-center text-white relative">
             <img
-              src={profilePhoto}
+              src="https://randomuser.me/api/portraits/men/32.jpg"
               alt="Profile"
-              className="w-full h-full object-cover"
+              className="w-32 h-32 rounded-full border-4 border-white mx-auto mb-4 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-white/30"
             />
-          ) : (
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23886363' viewBox='0 0 24 24'%3E%3Cpath d='M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l2.5-3.21 1.79 2.15 2.5-3.22L17 19H5z'/%3E%3C/svg%3E"
-              alt="Upload"
-            />
-          )}
-        </div>
-        <input
-          type="file"
-          id="profileInput"
-          accept="image/*"
-          hidden
-          onChange={(e) =>
-            setProfilePhoto(URL.createObjectURL(e.target.files[0]))
-          }
-        />
-        <p className="mt-2 text-sm text-gray-600">
-          Click to upload profile photo
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Personal Information</h2>a
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">
-              FullName
-            </label>
-            <input
-              id={"fullName"}
-              type="text"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">dob</label>
-            <input
-              id={"dob"}
-              type="date"
-              value={formData.dob}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">contact</label>
-            <input
-              id={"contact"}
-              type="number"
-              value={formData.contact}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">address</label>
-            <input
-              id={"address"}
-              type="text"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">city</label>
-            <input
-              id={"city"}
-              type="text"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block font-medium mb-1 capitalize">weight</label>
-            <input
-              id={"weight"}
-              type="text"
-              value={formData.weight}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
+            <h1 className="text-2xl font-bold mb-1"> {authUser.name} </h1>
+            <div className="flex items-center justify-center  gap-2 ">
+              <h1 className="inline-block bg-white text-red-600 px-3 py-1 rounded-full text-sm font-semibold mt-2">
+                Active Donor
+              </h1>
+              <h1 className="h-full flex flex-col justify-center items-center gap-2">
+                <SlBadge className="size-12 text-red-700" />
+                <span
+                  className={`p-1 px-2 ${
+                    authUser.verified ? "bg-green-400" : "bg-gray-300"
+                  } rounded-xl`}
+                >
+                  {authUser.verified ? "Verified" : "Not Verified"}
+                </span>
+              </h1>
+            </div>
           </div>
 
-          <div className="mb-4 grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium mb-1">State</label>
-              <select
-                id="state"
-                value={formData.state}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-200 rounded-lg"
+          {/* Profile Content */}
+          <div className="p-6 sm:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+                  <FaUser /> Personal Information
+                </h2>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaSignature /> Full Name
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2 transition-all duration-200 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+                    {authUser.name}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaCalendarDay /> Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaEnvelope /> Email
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2 transition-all duration-200 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+                    <FaEnvelope className="text-gray-500" /> {authUser.email}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaVenusMars /> Gender
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={authUser.gender}
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 cursor-pointer"
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                      <FaChevronDown className="text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Donation Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+                  <FaTint /> Donation Information
+                </h2>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaTint /> Blood Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      disabled
+                      value={authUser.bloodType}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 cursor-pointer"
+                    >
+                      {bloodTypes.map((type) => (
+                        <option key={type} value={type}>
+                           {type}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                      <FaChevronDown className="text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaHandHoldingHeart /> Donated To
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md">
+                    {" "}
+                    {authUser?.donatedTo?.length} recipients
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaHeart /> Donated By
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md">
+                    {authUser?.donatedBy?.length} donors
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaMapMarkerAlt /> Location
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2 transition-all duration-200 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+                    <FaMapMarkerAlt className="text-gray-500" /> New Delhi,
+                    India
+                  </div>
+                </div>
+              </div>
+
+              {/* Medical History */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+                  <FaFileMedical /> Medical History
+                </h2>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaFileMedical /> Medical Records
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2 transition-all duration-200 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+                    <FaFileMedical className="text-gray-500" /> View History
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaBell /> Notifications
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FaBell className="text-gray-500" /> Push Notifications
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={notificationsEnabled}
+                        onChange={() =>
+                          setNotificationsEnabled(!notificationsEnabled)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaStar /> Donor Rating
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <FaStar
+                          key={star}
+                          className={`cursor-pointer transition-all duration-200 hover:scale-125 ${
+                            star <= rating ? "text-red-500" : "text-gray-300"
+                          }`}
+                          onClick={() => setRating(star)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaUserTag /> Roles
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md">
+                    Donor, Volunteer
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+                  <FaClock /> Account Information
+                </h2>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaCalendarPlus /> Created At
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2">
+                    <FaCalendar className="text-gray-500" />{" "}
+                    {authUser.createdAt}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                    <FaCalendarCheck /> Last Updated
+                  </label>
+                  <div className="px-3 py-2 bg-gray-100 rounded-md flex items-center gap-2">
+                    <FaCalendar className="text-gray-500" />{" "}
+                    {authUser.updatedAt}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Verification Dropdown */}
+            <div className="mt-8 border-t border-gray-200 pt-6">
+              <div
+                className={`flex items-center justify-between px-4 py-3 bg-red-50 text-red-800 rounded-md font-semibold cursor-pointer transition-all duration-200 ${
+                  isVerificationOpen ? "rounded-b-none" : ""
+                }`}
+                onClick={() => setIsVerificationOpen(!isVerificationOpen)}
               >
-                {["Odisha", "West Bengal", "Maharashtra", "Karnataka"].map(
-                  (state) => (
-                    <option key={state}>{state}</option>
-                  )
-                )}
-              </select>
+                <div className="flex items-center gap-2">
+                  <FaShieldAlt /> Account Verification
+                </div>
+                <FaChevronDown
+                  className={`transition-transform duration-300 ${
+                    isVerificationOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+
+              <div
+                className={`bg-gray-50 rounded-b-md overflow-hidden transition-all duration-300 ${
+                  isVerificationOpen
+                    ? "max-h-96 border border-t-0 border-gray-200"
+                    : "max-h-0"
+                }`}
+              >
+                {verificationItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-3 px-4 py-3 ${
+                      index < verificationItems.length - 1
+                        ? "border-b border-gray-200"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-600">
+                      {item.icon}
+                    </div>
+                    <div className="flex-1">{item.text}</div>
+                    <div
+                      className={`font-semibold ${getStatusColor(item.status)}`}
+                    >
+                      {getStatusText(item.status)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center mt-4">
+                <button
+                  className="btn rounded-2xl"
+                  onClick={() => navigate("/verify-user")}
+                >
+                  {" "}
+                  Verify Remaining{" "}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-xl font-bold mb-4">Medical Information</h2>
-          <div className="mb-4">
-            <label className="block font-medium mb-1">Blood Type</label>
-            <select
-              id="bloodType"
-              value={formData.bloodType}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            >
-              {["O+", "A+", "B+", "AB+"].map((type) => (
-                <option key={type}>{type}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-medium mb-1">Last Donation Date</label>
-            <input
-              type="date"
-              id="lastDonation"
-              value={formData.lastDonation}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-200 rounded-lg"
-            />
-          </div>
-
-          <div
-            className="border-2 border-dashed border-gray-400 rounded-xl p-4 text-center cursor-pointer"
-            onClick={() => navigate("/verify-user")}
-            disabled={true}
-          >
-            <p>Upload Aadhaar Card (PDF/Image)</p>
-            <small>Max file size: 2MB</small>
-            {loadingAadhaar && (
-              <div className="mt-2 w-8 h-8 border-4 border-t-red-500 border-gray-200 rounded-full animate-spin mx-auto"></div>
-            )}
-            {status.target === "aadhaar" && (
-              <p
-                className={`mt-2 text-sm ${
-                  status.type === "success" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {status.message}
-              </p>
-            )}
-            <input
-              type="file"
-              id="aadhaarInput"
-              hidden
-              accept=".pdf,.jpg,.png"
-            />
-          </div>
-        </div>
       </div>
-
-      <button
-        className="bg-red-600 text-white px-8 py-3 rounded-xl mt-6 mx-auto block disabled:opacity-50"
-        disabled={!verified}
-        onClick={handleSubmit}
-      >
-        Complete Registration
-      </button>
-    </motion.div>
+    </div>
   );
 };
 

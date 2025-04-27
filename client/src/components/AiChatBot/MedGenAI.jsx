@@ -1,61 +1,27 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { FaHospitalUser } from "react-icons/fa";
+import { useGenStore } from "../../store/GenStore";
+import ReactMarkdown from "react-markdown";
+import { LuAudioLines } from "react-icons/lu";
+
 
 export default function MedGenAIChat() {
+  const messageEndRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: "Hello! I'm MedGenAI, your blood donation assistant. How can I help you today?" }
-  ]);
+  const { messages, generate, isLoading, isTyping } = useGenStore();
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
 
-  const responses = {
-    donate: `🩸 Thank you for your willingness to save lives! Here's what you need to know:
-<ul class='list-disc pl-6'>
-  <li>Age: 18-65 years</li>
-  <li>Weight: Minimum 50kg</li>
-  <li>Good health condition</li>
-  <li>No recent major surgery</li>
-</ul>
-Shall I help you locate the nearest blood donation center?`,
-    eligibility: `🩸 Eligibility criteria include:
-<ul class='list-disc pl-6'>
-  <li>No infections in past 2 weeks</li>
-  <li>Hemoglobin ≥12.5 g/dL</li>
-  <li>No new tattoos (last 6 months)</li>
-  <li>Not pregnant or breastfeeding</li>
-</ul>
-Would you like to check your eligibility now?`,
-    default: `🩸 I specialize in blood donation information. Ask me about:
-<ul class='list-disc pl-6'>
-  <li>Donation requirements</li>
-  <li>Pre-donation preparation</li>
-  <li>Post-donation care</li>
-  <li>Center locations</li>
-</ul>
-How can I assist you today?`
-  };
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const sendMessage = () => {
     if (!input.trim()) return;
-    const userMessage = input.trim();
-    setMessages([...messages, { sender: "user", text: userMessage }]);
+    generate(input);
     setInput("");
-    setIsTyping(true);
-
-    const lowerMsg = userMessage.toLowerCase();
-    let reply = responses.default;
-    if (lowerMsg.includes("donate") || lowerMsg.includes("donation")) {
-      reply = responses.donate;
-    } else if (lowerMsg.includes("eligibility") || lowerMsg.includes("eligible")) {
-      reply = responses.eligibility;
-    }
-
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
-      setIsTyping(false);
-    }, 1500);
   };
 
   return (
@@ -66,8 +32,25 @@ How can I assist you today?`
         whileTap={{ scale: 0.95 }}
         onClick={() => setVisible(!visible)}
       >
-        <motion.span animate={{ rotate: visible ? 360 : 0 } }  className="text-white text-2xl">
-        <FaHospitalUser />
+        <motion.span
+          animate={{ rotate: visible ? 360 : 0 }}
+          className="text-white text-2xl"
+        >
+          <FaHospitalUser />
+        </motion.span>
+      </motion.div>
+
+      <motion.div
+        className="fixed bottom-20 right-5 w-14 h-14 z-[100] bg-red-800 rounded-full flex items-center justify-center cursor-pointer shadow-lg"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setVisible(!visible)}
+      >
+        <motion.span
+          animate={{ rotate: visible ? 360 : 0 }}
+          className="text-white text-2xl"
+        >
+          <LuAudioLines />
         </motion.span>
       </motion.div>
 
@@ -87,10 +70,13 @@ How can I assist you today?`
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 bg-red-50/40">
             {messages.map((msg, i) => (
               <motion.div
+                ref={messageEndRef}
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`rounded-xl px-4 py-3 text-sm shadow max-w-[80%] ${
@@ -98,8 +84,14 @@ How can I assist you today?`
                       ? "bg-gradient-to-r from-red-900 to-red-600 text-white rounded-br-none"
                       : "bg-white text-gray-800 border border-red-100 rounded-bl-none"
                   }`}
-                  dangerouslySetInnerHTML={{ __html: msg.text }}
-                />
+                >
+                  {" "}
+                  {msg.sender === "user" ? (
+                    msg.message
+                  ) : (
+                    <ReactMarkdown>{msg.message}</ReactMarkdown>
+                  )}{" "}
+                </div>
               </motion.div>
             ))}
 
