@@ -41,7 +41,6 @@ const Login = () => {
       setButtonSuccess(isLoggingIn);
       await login({ email, password });
       setButtonSuccess(isLoggingIn);
-      navigate("/") 
     }
   };
 

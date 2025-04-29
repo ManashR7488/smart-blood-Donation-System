@@ -4,13 +4,13 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
+import variables from '../../env';
+import axios from 'axios';
 
 // Sample data
-const bloodBanks = [
-  { id: 1, name: "AIIMS Delhi Blood Bank", coords: [28.567, 77.209], types: ["A+","B+","O+","AB+"], contact: "011-26588500", address: "Ansari Nagar, New Delhi", hours: "8:00 AM - 8:00 PM", distance: "2.5 km" },
-  { id: 2, name: "KEM Hospital Blood Bank", coords: [18.975, 72.825], types: ["A+","A-","B+","B-","O+","O-","AB+","AB-"], contact: "022-24136000", address: "Parel, Mumbai", hours: "24 Hours", distance: "15 km" },
-  // ... more
-];
+// const bloodBanks = [
+//  // ... more
+// ];
 
 // Custom div icon
 const createIcon = (iconUrl) => L.divIcon({
@@ -41,6 +41,8 @@ export default function FindCenter() {
   const [waypoints, setWaypoints] = useState([]);
   const [viewType, setViewType] = useState('road');
   const mapRef = useRef();
+  const [city, setCity] = useState("")
+  const [bloodBanks, setBloodBanks] = useState([]);
 
   const filtered = bloodBanks.filter(bank =>
     bank.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -69,6 +71,88 @@ export default function FindCenter() {
     hybrid: 'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
   };
 
+  function extractArrayFromTextResponse(textResponse) {
+    let jsonString = null;
+  
+    // 1) Try to find a ```json ... ``` block
+    const codeBlockMatch = textResponse.match(/```json\s*([\s\S]*?)\s*```/i);
+    if (codeBlockMatch) {
+      jsonString = codeBlockMatch[1];
+    } else {
+      // 2) Fallback: grab between the first [ and the last ]
+      const start = textResponse.indexOf('[');
+      const end   = textResponse.lastIndexOf(']');
+      if (start !== -1 && end !== -1 && end > start) {
+        jsonString = textResponse.slice(start, end + 1);
+      }
+    }
+  
+    if (!jsonString) {
+      console.warn('No JSON array found in response.');
+      return null;
+    }
+  
+    try {
+      const parsed = JSON.parse(jsonString);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      } else {
+        console.warn('Parsed JSON is not an array.');
+        return null;
+      }
+    } catch (err) {
+      console.error('Failed to parse JSON:', err);
+      return null;
+    }
+  }
+
+  const generate = async ()=>{
+    const predata = {
+      contents: [
+        {
+          parts: [
+            {
+                // text: promt,
+              text: `you are a assistant name:"Blood Buddy" of a app which is made for smart blood donation system this app is particularly mad for Bhubneswar city in odisha.responce according to previous responce or responce according to the give promt. i am currently in ${city} and i am looking for blood banks near me. responce some multiple data don't give me any responce only provide me the object in this object formate { name: "", coords: [,], types: ["A+","B+","O+","AB+"], contact: "011-26588500", address: "", hours: "", distance: "2.5 km" },`,
+            },
+          ],
+        },
+      ],
+    };
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${variables.gemini}`,
+      predata
+    );
+    const data = await response.data.candidates[0].content.parts[0].text;
+    // const parsedData = await JSON.parse(data);
+    let parsedData = extractArrayFromTextResponse(data);
+    setBloodBanks(parsedData);
+  }
+
+
+  const handleForm = async()=>{
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition( async ({ coords }) => {
+        console.log(coords.latitude, coords.longitude);
+        const { data } = await axios.get(
+          `https://api.openweathermap.org/geo/1.0/reverse?lat=${coords.latitude}&lon=${coords.longitude}&limit=1&appid=${variables.API_KEY}`
+        );
+
+        setCity(data[0].name);
+      });
+    }
+
+   await generate()
+  }
+
+
+  useEffect(() => {
+    handleForm();
+  })
+
+
+
   return (
     <div className="flex h-screen overflow-hidden p-3">
       {/* Sidebar */}
@@ -81,8 +165,14 @@ export default function FindCenter() {
           <input
             type="text"
             placeholder="Search for blood banks..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={city}
+            onChange={e => setCity(e.target.value)}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                setCity(e.target.value);
+                await generate();
+              }
+            }}
             className="w-full p-3 rounded-md border border-gray-200 focus:border-red-600 focus:ring-2 focus:ring-red-200"
           />
         </div>
@@ -127,8 +217,8 @@ export default function FindCenter() {
           whenCreated={mapInstance => (mapRef.current = mapInstance)}
         >
           <TileLayer url={tileUrls[viewType]} />
-          {bloodBanks.map(bank => (
-            <Marker key={bank.id} position={bank.coords} icon={createIcon('https://img.icons8.com/color/48/blood-donation.png')}>              
+          {bloodBanks.map((bank, idx) => (
+            <Marker key={idx} position={bank.coords} icon={createIcon('https://img.icons8.com/color/48/blood-donation.png')}>              
               <Popup>
                 <div className="p-2">
                   <h3 className="text-red-600 font-semibold mb-1">{bank.name}</h3>

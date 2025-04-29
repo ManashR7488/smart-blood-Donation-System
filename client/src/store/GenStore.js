@@ -27,14 +27,14 @@ export const useGenStore = create((set) => ({
             parts: [
               {
                   // text: promt,
-                text: `you are a assistant name:"Blood Buddy" of a app which is made for smart blood donation syste .responce according to previous responce or responce according to the give promt. promt:"${promt}"`,
+                text: `you are a assistant name:"Blood Buddy" of a app which is made for smart blood donation system this app is particularly mad for Bhubneswar city in odisha.responce according to previous responce or responce according to the give promt. promt:"${promt}"`,
               },
             ],
           },
         ],
       };
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${variables.gemini}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${"AIzaSyBbwwrcZMy2epLIIg8zH1nGCTB6eLSvgY8"}`,
         predata
       );
       const data = await response.data.candidates[0].content.parts[0].text;
